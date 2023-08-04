@@ -1,4 +1,4 @@
-# PROJECT_TITLE
+# BOOTCAMP COURSE
 This is the name of the project. It describes the whole project in one sentence, and helps people understand what 
 the main goal and aim of the project is.
 
@@ -34,12 +34,16 @@ you should include the steps required to install your project and also the requi
 Provide a step-by-step description of how to get the development environment set and running.
 
 ## Run and Test
+Database ada migration di init.sql
+and test endpoint ada
+atau ada collection postman
 
-This section describe on how to run your project. Go the extra mile and write tests for your application. 
-Then provide code examples and how to run them.
-
-This will help show that you are certain and confident that your project will work without any challenges, 
-which will give other people confidence in it, too
+make dev || make run
+and end point test
+CREATE COURSE
+-POST http://localhost:8081/v1/course
+GET ALL COURSE BY ID
+-GET http://localhost:8081/v1/course
 
 ## Contributing
 

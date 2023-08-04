@@ -54,10 +54,10 @@ func NewCourseResponseFromCourse(course Course) CourseResponseFormat {
 	}
 }
 
-func NewCourseResponsesFromCourses(courses []Course) []CourseResponseFormat {
+func NewCourseResponsesFromCourses(courses []CourseResponseFormat) []CourseResponseFormat {
 	var responses []CourseResponseFormat
 	for _, course := range courses {
-		responses = append(responses, NewCourseResponseFromCourse(course))
+		responses = append(responses, NewCourseResponseFromCourse(Course(course)))
 	}
 	return responses
 }

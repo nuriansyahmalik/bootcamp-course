@@ -43,13 +43,8 @@ func (h *CourseHandler) GetCourse(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses := course.NewCourseResponsesFromCourses(courses)
-	jsonResponse, err := json.Marshal(responses)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
 
-	response.WithJSON(w, http.StatusOK, jsonResponse)
+	response.WithJSON(w, http.StatusOK, responses)
 }
 func (h *CourseHandler) CreateCourse(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)

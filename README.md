@@ -34,7 +34,9 @@ you should include the steps required to install your project and also the requi
 Provide a step-by-step description of how to get the development environment set and running.
 
 ## Run and Test
-Database ada di migrations init.sql make dev and test endpoint ada
+Database ada migration di init.sql
+and test endpoint ada
+atau ada collection postman
 
 make dev || make run
 and end point test

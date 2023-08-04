@@ -9,7 +9,7 @@ import (
 
 type CourseService interface {
 	Create(requestFormat CourseRequestFormat, userID uuid.UUID) (course Course, err error)
-	GetAllCourse() ([]CourseResponseFormat, error)
+	GetAllCoursesByUserID(userID uuid.UUID) ([]CourseResponseFormat, error)
 }
 type CourseServiceImpl struct {
 	CourseRepository CourseRepository
@@ -36,8 +36,8 @@ func (c *CourseServiceImpl) Create(requestFormat CourseRequestFormat, userID uui
 	return
 }
 
-func (c *CourseServiceImpl) GetAllCourse() ([]CourseResponseFormat, error) {
-	courses, err := c.CourseRepository.GetAllCourses()
+func (c *CourseServiceImpl) GetAllCoursesByUserID(userID uuid.UUID) ([]CourseResponseFormat, error) {
+	courses, err := c.CourseRepository.GetAllCoursesByUserID(userID)
 	if err != nil {
 		return nil, err
 	}

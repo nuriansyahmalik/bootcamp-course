@@ -10,7 +10,6 @@ import (
 	"github.com/evermos/boilerplate-go/shared/oauth"
 	"github.com/evermos/boilerplate-go/transport/http/response"
 	"net/http"
-	"strings"
 )
 
 type Authentication struct {
@@ -33,7 +32,7 @@ type Response struct {
 
 func ValidateJWTMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tokenString := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+		tokenString := r.Header.Get("Authorization")[(len("Bearer ")):]
 		fmt.Println(tokenString)
 
 		newReq, err := http.NewRequest("GET", "http://localhost:8080/v1/users/validate-auth", nil)

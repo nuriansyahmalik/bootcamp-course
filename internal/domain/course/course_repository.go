@@ -8,14 +8,15 @@ import (
 
 var (
 	courseQueries = struct {
-		selectCourse string
-		insertCourse string
+		selectCourse         string
+		insertCourse         string
+		selectCourseByUserID string
 	}{
 		selectCourse: `
             SELECT 
 				c.id,
 				c.title,
-				c.content
+				c.content,
             	c.user_id
 			FROM course c	
 `,
@@ -30,13 +31,21 @@ var (
 			    :title,
 			    :content,
 			    :user_id)`,
+		selectCourseByUserID: `
+			SELECT 
+				c.id,
+				c.title,
+				c.content,
+				c.user_id
+			FROM course c
+			WHERE c.user_id = ?`,
 	}
 )
 
 type CourseRepository interface {
 	Create(course Course) (err error)
 	ExistsByID(id uuid.UUID) (exists bool, err error)
-	GetAllCourses() ([]Course, error)
+	GetAllCoursesByUserID(userID uuid.UUID) ([]Course, error)
 }
 
 type CourseRepositoryMySQL struct {
@@ -73,8 +82,8 @@ func (c *CourseRepositoryMySQL) ExistsByID(id uuid.UUID) (exists bool, err error
 
 	return
 }
-func (c *CourseRepositoryMySQL) GetAllCourses() ([]Course, error) {
-	rows, err := c.DB.Read.Query(courseQueries.selectCourse)
+func (c *CourseRepositoryMySQL) GetAllCoursesByUserID(userID uuid.UUID) ([]Course, error) {
+	rows, err := c.DB.Read.Query(courseQueries.selectCourseByUserID, userID)
 	if err != nil {
 		logger.ErrorWithStack(err)
 		return nil, err
@@ -84,10 +93,14 @@ func (c *CourseRepositoryMySQL) GetAllCourses() ([]Course, error) {
 	var courses []Course
 	for rows.Next() {
 		var course Course
-		err := rows.Scan(&course.ID, &course.Title, &course.Content, &course.UserID)
+		var userID uuid.NullUUID
+		err := rows.Scan(&course.ID, &course.Title, &course.Content, &userID)
 		if err != nil {
 			logger.ErrorWithStack(err)
 			return nil, err
+		}
+		if userID.Valid {
+			course.UserID = userID.UUID
 		}
 		courses = append(courses, course)
 	}

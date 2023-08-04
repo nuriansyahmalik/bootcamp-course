@@ -5,10 +5,10 @@ import (
 	"github.com/evermos/boilerplate-go/internal/domain/course"
 	"github.com/evermos/boilerplate-go/shared"
 	"github.com/evermos/boilerplate-go/shared/failure"
+	"github.com/evermos/boilerplate-go/shared/jwt"
 	"github.com/evermos/boilerplate-go/transport/http/middleware"
 	"github.com/evermos/boilerplate-go/transport/http/response"
 	"github.com/go-chi/chi"
-	"github.com/gofrs/uuid"
 	"github.com/rs/zerolog/log"
 	"net/http"
 )
@@ -29,6 +29,7 @@ func (h *CourseHandler) Router(r chi.Router) {
 	r.Route("/course", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.ValidateJWTMiddleware)
+			r.Use(middleware.CheckRole)
 			r.Get("/", h.GetCourse)
 			r.Post("/", h.CreateCourse)
 		})
@@ -47,6 +48,11 @@ func (h *CourseHandler) GetCourse(w http.ResponseWriter, r *http.Request) {
 	response.WithJSON(w, http.StatusOK, responses)
 }
 func (h *CourseHandler) CreateCourse(w http.ResponseWriter, r *http.Request) {
+	claims, ok := r.Context().Value("claims").(jwt.Claims)
+	if !ok {
+		http.Error(w, "Error Claims", http.StatusUnauthorized)
+		return
+	}
 	decoder := json.NewDecoder(r.Body)
 	var requestFormat course.CourseRequestFormat
 	err := decoder.Decode(&requestFormat)
@@ -60,8 +66,8 @@ func (h *CourseHandler) CreateCourse(w http.ResponseWriter, r *http.Request) {
 		response.WithError(w, failure.BadRequest(err))
 		return
 	}
-	userID, _ := uuid.NewV4() // TODO: read from context
-	user, err := h.CourseService.Create(requestFormat, userID)
+	//id, _ := uuid.NewV4() // TODO: read from context
+	user, err := h.CourseService.Create(requestFormat, claims.ID)
 	if err != nil {
 		log.Error().Msg("error disni")
 		response.WithError(w, err)

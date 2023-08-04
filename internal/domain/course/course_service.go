@@ -8,7 +8,7 @@ import (
 )
 
 type CourseService interface {
-	Create(requestFormat CourseRequestFormat, id uuid.UUID) (course Course, err error)
+	Create(requestFormat CourseRequestFormat, userID uuid.UUID) (course Course, err error)
 	GetAllCourse() ([]CourseResponseFormat, error)
 }
 type CourseServiceImpl struct {
@@ -20,18 +20,18 @@ func ProvideCourseServiceImpl(courseRepository CourseRepository, config *configs
 	return &CourseServiceImpl{CourseRepository: courseRepository, Config: config}
 }
 
-func (c *CourseServiceImpl) Create(requestFormat CourseRequestFormat, id uuid.UUID) (course Course, err error) {
-	course, err = course.CourseRequestFormat(requestFormat, id)
+func (c *CourseServiceImpl) Create(requestFormat CourseRequestFormat, userID uuid.UUID) (course Course, err error) {
+	course, err = course.CourseRequestFormat(requestFormat, userID)
 	if err != nil {
 		return
 	}
-
 	if err != nil {
 		return course, failure.BadRequest(err)
 	}
 	err = c.CourseRepository.Create(course)
 	if err != nil {
 		log.Info().Err(err)
+		return
 	}
 	return
 }

@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/evermos/boilerplate-go/infras"
@@ -57,11 +58,22 @@ func ValidateJWTMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		if responseObject.Data.Role != "teacher" {
+		ctx := context.WithValue(r.Context(), "claims", responseObject.Data)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func CheckRole(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		resp, ok := r.Context().Value("claims").(jwt.Claims)
+		if !ok {
+			response.WithError(w, failure.Unauthorized("Unauthorized"))
+			return
+		}
+		if resp.Role != "teacher" {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
-
 		next.ServeHTTP(w, r)
 	})
 }

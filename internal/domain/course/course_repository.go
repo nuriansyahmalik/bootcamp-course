@@ -16,17 +16,20 @@ var (
 				c.id,
 				c.title,
 				c.content
+            	c.user_id
 			FROM course c	
 `,
 		insertCourse: `
 			INSERT INTO course (
 			 	id,
 			    title,
-			    content
+			    content,
+			    user_id
 			) VALUES (
 				:id,
 			    :title,
-			    :content)`,
+			    :content,
+			    :user_id)`,
 	}
 )
 
@@ -81,7 +84,7 @@ func (c *CourseRepositoryMySQL) GetAllCourses() ([]Course, error) {
 	var courses []Course
 	for rows.Next() {
 		var course Course
-		err := rows.Scan(&course.ID, &course.Title, &course.Content)
+		err := rows.Scan(&course.ID, &course.Title, &course.Content, &course.UserID)
 		if err != nil {
 			logger.ErrorWithStack(err)
 			return nil, err

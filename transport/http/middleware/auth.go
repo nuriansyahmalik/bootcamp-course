@@ -1,11 +1,15 @@
 package middleware
 
 import (
-	"net/http"
-
+	"encoding/json"
+	"fmt"
 	"github.com/evermos/boilerplate-go/infras"
+	"github.com/evermos/boilerplate-go/shared/failure"
+	"github.com/evermos/boilerplate-go/shared/jwt"
 	"github.com/evermos/boilerplate-go/shared/oauth"
 	"github.com/evermos/boilerplate-go/transport/http/response"
+	"net/http"
+	"strings"
 )
 
 type Authentication struct {
@@ -20,6 +24,46 @@ func ProvideAuthentication(db *infras.MySQLConn) *Authentication {
 	return &Authentication{
 		db: db,
 	}
+}
+
+type Response struct {
+	Data jwt.Claims `json:"data"`
+}
+
+func ValidateJWTMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		tokenString := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+		fmt.Println(tokenString)
+
+		newReq, err := http.NewRequest("GET", "http://localhost:8080/v1/users/validate-auth", nil)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		newReq.Header.Set("Authorization", "Bearer "+tokenString)
+
+		client := http.Client{}
+		resp, err := client.Do(newReq)
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		decoder := json.NewDecoder(resp.Body)
+		var responseObject Response
+		err = decoder.Decode(&responseObject)
+		if err != nil {
+			response.WithError(w, failure.BadRequest(err))
+			return
+		}
+
+		if responseObject.Data.Role != "teacher" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (a *Authentication) ClientCredential(next http.Handler) http.Handler {

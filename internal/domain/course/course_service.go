@@ -9,7 +9,7 @@ import (
 
 type CourseService interface {
 	Create(requestFormat CourseRequestFormat, id uuid.UUID) (course Course, err error)
-	GetAllCourse() ([]Course, error)
+	GetAllCourse() ([]CourseResponseFormat, error)
 }
 type CourseServiceImpl struct {
 	CourseRepository CourseRepository

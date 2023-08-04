@@ -41,7 +41,7 @@ and end point test
 CREATE COURSE
 -POST http://localhost:8081/v1/course
 GET ALL COURSE BY ID
--GEThttp://localhost:8081/v1/course
+-GET http://localhost:8081/v1/course
 
 ## Contributing
 
